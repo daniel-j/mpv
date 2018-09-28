@@ -40,19 +40,20 @@ struct priv {
     int format;
 };
 
+// returns number of samples copied or -1 in case of error
 int libmpv_audio_callback(struct ao *ao, void *buffer, int len)
 {
     struct priv *priv;
     priv = ao->priv;
 
-    if (priv->init == false)
-    {
+    if (priv->init == false) {
         MP_ERR(ao, "libmpv audio output not initialized\n");
-        return -4;
+        return -1;
     }
 
-    if (len % ao->sstride)
+    if (len % ao->sstride) {
         MP_ERR(ao, "libmpv audio callback not sample aligned.\n");
+    }
 
     // Time this buffer will take, plus assume 1 period (1 callback invocation)
     // fixed latency.
@@ -75,18 +76,20 @@ static int init(struct ao *ao)
     priv->init = true;
 
     /* Only error if user explicitly asks for planar output audio. */
-    if (af_fmt_is_planar(priv->format))
+    if (af_fmt_is_planar(priv->format)) {
         MP_ERR(ao, "planar format not supported\n");
+    }
 
-    if (priv->format)
+    if (priv->format) {
         ao->format = priv->format;
-    else {
+    } else {
         /* Required as planar audio causes arithmetic exceptions in pull API. */
         ao->format = af_fmt_from_planar(ao->format);
     }
 
-    if (priv->samplerate)
+    if (priv->samplerate) {
         ao->samplerate = priv->samplerate;
+    }
 
     struct mp_chmap_sel sel = {.tmp = ao};
     if (priv->channel_layouts.num_chmaps) {
@@ -96,13 +99,14 @@ static int init(struct ao *ao)
         mp_chmap_sel_add_any(&sel);
     }
 
-    if (!ao_chmap_sel_adjust(ao, &sel, &ao->channels))
+    if (!ao_chmap_sel_adjust(ao, &sel, &ao->channels)) {
         MP_ERR(ao, "unable to set channel map\n");
+    }
 
     return 1;
 }
 
-static void resume (struct ao *ao)
+static void resume(struct ao *ao)
 {
     return;
 }
@@ -116,9 +120,6 @@ const struct ao_driver audio_out_libmpv = {
     .uninit    = uninit,
     .resume    = resume,
     .priv_size = sizeof(struct priv),
-    .priv_defaults = &(const struct priv) {
-        .init = false,
-    },
     .options = (const struct m_option[]) {
         OPT_CHANNELS("channel-layouts", channel_layouts, 0, .min = 1),
         OPT_INTRANGE("samplerate", samplerate, 0, 1000, 8*48000),

@@ -212,6 +212,22 @@ Available audio output drivers are:
     ``--ao-null-format``
         Force the audio output format the AO will accept. If unset accepts any.
 
+``libmpv``
+    For use with libmpv direct embedding. This lets your application manage
+    the audio output stream.
+
+    The following global options are supported by this audio output:
+
+    ``--ao-libmpv-samplerate``
+        Set the output samplerate.
+
+    ``--ao-libmpv-format``
+        Set the output audio format.
+
+    ``--ao-libmpv-channel-layouts``
+        If not empty, this is a ``,`` separated list of channel layouts the
+        AO allows.
+
 ``pcm``
     Raw PCM/WAVE file writer audio output
 
